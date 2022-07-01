@@ -174,6 +174,14 @@ pub struct Session {
     data: bytes::BytesMut,
     expired: bool,
 }
+
+#[derive(Debug)]
+pub struct VariableDescription<'a> {
+    pub name: &'a str,
+    pub desc: &'a str,
+    pub unit: &'a str,
+}
+
 impl Session {
     /// Is this session still connected to the iRacing data.
     ///
@@ -258,6 +266,17 @@ impl Session {
             );
         }
     }
+
+    pub unsafe fn get_vars(&self) -> Vec<VariableDescription> {
+        let mut vars: Vec<VariableDescription> = Vec::new();
+
+        for var in self.conn.variables() {
+            vars.push(VariableDescription { name: var.name().unwrap(), desc: var.desc().unwrap(), unit: var.unit().unwrap() });
+        }
+
+        vars
+    }
+
     /// find_var will look for an iracing data point/variable with
     /// the supplied name (case sensitive). None is returned if its
     /// unable to find a matching item. The return Var is only
